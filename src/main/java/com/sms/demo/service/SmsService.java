@@ -57,7 +57,7 @@ public class SmsService {
 
 				if (messageModel.getText().trim().equals("STOP")) {
 					stopMap.put(messageModel.getFrom() + messageModel.getTo(), messageModel.getTo(),
-							stopCacheTimingInHourse, TimeUnit.MINUTES);
+							stopCacheTimingInHourse, TimeUnit.HOURS);
 				}
 
 				res = new ResponseModel("", "inbund sms ok");
@@ -87,7 +87,7 @@ public class SmsService {
 				}
 
 				else if (dailyLimitMap.get(messageModel.getFrom()) != null
-						&& dailyLimitMap.get(messageModel.getFrom()) >= maxLimitClearTimeCount) {
+						&& dailyLimitMap.get(messageModel.getFrom()) > maxLimitClearTimeCount) {
 					res = new ResponseModel("", "limit reached for from " + messageModel.getFrom());
 				} else {
 

@@ -184,7 +184,7 @@ class SmsdemoApplicationTests {
 	}
 
 	@Test
-	@Order(6)
+	@Order(7)
 	public void testInBoundMessageWithFromInvalid() throws JsonMappingException, JsonProcessingException {
 
 		MessageModel model = new MessageModel();
@@ -208,10 +208,9 @@ class SmsdemoApplicationTests {
 		assertEquals("from is invalid", actualObj.get("error").textValue());
 
 	}
-	
-	
+
 	@Test
-	@Order(6)
+	@Order(8)
 	public void testInBoundMessageWithToNotFound() throws JsonMappingException, JsonProcessingException {
 
 		MessageModel model = new MessageModel();
@@ -234,11 +233,9 @@ class SmsdemoApplicationTests {
 		JsonNode actualObj = mapper.readTree(responseModelObject.toString());
 		assertEquals("to parameter not found", actualObj.get("error").textValue());
 	}
-	
-	
-	
+
 	@Test
-	@Order(3)
+	@Order(9)
 	public void testOutBoundMessageWithToMissing() throws JsonMappingException, JsonProcessingException {
 
 		MessageModel model = new MessageModel();
@@ -264,7 +261,7 @@ class SmsdemoApplicationTests {
 	}
 
 	@Test
-	@Order(4)
+	@Order(10)
 	public void testOutBoundMessageWithFromMising() throws JsonMappingException, JsonProcessingException {
 
 		MessageModel model = new MessageModel();
@@ -290,7 +287,7 @@ class SmsdemoApplicationTests {
 	}
 
 	@Test
-	@Order(5)
+	@Order(11)
 	public void testOutBoundMessageWithTextMising() throws JsonMappingException, JsonProcessingException {
 
 		MessageModel model = new MessageModel();
@@ -316,7 +313,7 @@ class SmsdemoApplicationTests {
 	}
 
 	@Test
-	@Order(6)
+	@Order(12)
 	public void testOutBoundMessageWithToInvalid() throws JsonMappingException, JsonProcessingException {
 
 		MessageModel model = new MessageModel();
@@ -342,7 +339,7 @@ class SmsdemoApplicationTests {
 	}
 
 	@Test
-	@Order(6)
+	@Order(13)
 	public void testOutBoundMessageWithFromInvalid() throws JsonMappingException, JsonProcessingException {
 
 		MessageModel model = new MessageModel();
@@ -366,10 +363,9 @@ class SmsdemoApplicationTests {
 		assertEquals("from is invalid", actualObj.get("error").textValue());
 
 	}
-	
-	
+
 	@Test
-	@Order(6)
+	@Order(14)
 	public void testOutBoundMessageWithToNotFound() throws JsonMappingException, JsonProcessingException {
 
 		MessageModel model = new MessageModel();
@@ -392,8 +388,8 @@ class SmsdemoApplicationTests {
 		JsonNode actualObj = mapper.readTree(responseModelObject.toString());
 		assertEquals("from parameter not found", actualObj.get("error").textValue());
 	}
-	
-	@Order(6)
+
+	@Order(14)
 	@Test
 	public void testOutBoundMessageWithSuccess() throws JsonMappingException, JsonProcessingException {
 
@@ -417,11 +413,10 @@ class SmsdemoApplicationTests {
 		JsonNode actualObj = mapper.readTree(responseModelObject.toString());
 		assertEquals("outbound sms ok", actualObj.get("message").textValue());
 	}
-	
-	
-	@Order(6)
+
+	@Order(15)
 	@Test
-	@RepeatedTest(1)
+	@RepeatedTest(49)
 	public void testOutBoundMessageWithLimitMessage() throws JsonMappingException, JsonProcessingException {
 
 		MessageModel model = new MessageModel();
@@ -444,8 +439,9 @@ class SmsdemoApplicationTests {
 		JsonNode actualObj = mapper.readTree(responseModelObject.toString());
 		assertEquals("outbound sms ok", actualObj.get("message").textValue());
 	}
-	
+
 	@Test
+	@Order(16)
 	public void testOutBoundMessageWithLimitMessageSuccss() throws JsonMappingException, JsonProcessingException {
 
 		MessageModel model = new MessageModel();
@@ -466,13 +462,7 @@ class SmsdemoApplicationTests {
 		String responseModelObject = r.body().asString();
 
 		JsonNode actualObj = mapper.readTree(responseModelObject.toString());
-		assertEquals("limit reached for from "+model.getFrom(), actualObj.get("error").textValue());
+		assertEquals("limit reached for from " + model.getFrom(), actualObj.get("error").textValue());
 	}
-	
-	
-	
-	
-	
-	
 
 }
