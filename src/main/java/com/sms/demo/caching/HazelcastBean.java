@@ -45,10 +45,15 @@ public class HazelcastBean {
 	public IMap<String, String> getStopMap(HazelcastInstance hazelcastInstance) {
 		return hazelcastInstance.getMap("stopMap");
 	}
-	
+
 	@Bean(name = "dailyLimitMap")
 	public IMap<String, Integer> getDailyLimitMap(HazelcastInstance hazelcastInstance) {
 		return hazelcastInstance.getMap("dailyLimitMap");
+	}
+
+	@Bean(name = "expirationTimeMap")
+	public IMap<String, Long> getFromExpriationTimeMap(HazelcastInstance hazelcastInstance) {
+		return hazelcastInstance.getMap("expirationTimeMap");
 	}
 
 }

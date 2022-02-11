@@ -2,8 +2,6 @@ package com.sms.demo.model;
 
 import java.io.Serializable;
 
-import javax.validation.constraints.Size;
-
 import lombok.Data;
 
 @Data

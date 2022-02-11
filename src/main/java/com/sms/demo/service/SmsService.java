@@ -4,6 +4,8 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.hazelcast.map.IMap;
@@ -18,16 +20,27 @@ import com.sms.demo.util.Util;
 public class SmsService {
 
 	@Autowired
-	private AccountRepository accountRepository;
-
-	@Autowired
 	private PhoneNumberRepository phoneNumberRepository;
 
 	@Autowired
 	private IMap<String, String> stopMap;
 
 	@Autowired
+	@Qualifier("dailyLimitMap")
 	private IMap<String, Integer> dailyLimitMap;
+
+	@Autowired
+	@Qualifier("expirationTimeMap")
+	private IMap<String, Long> expirationTimeMap;
+
+	@Value("${sms.stop.expire.time}")
+	private Integer stopCacheTimingInHourse;
+
+	@Value("${sms.clear.dialy.limit}")
+	private Integer maxLimitClearTime;
+
+	@Value("${sms.clear.dialy.limit.count}")
+	private Integer maxLimitClearTimeCount;
 
 	public ResponseModel procesInboundMessage(MessageModel messageModel) {
 		ResponseModel res = null;
@@ -43,8 +56,8 @@ public class SmsService {
 			} else {
 
 				if (messageModel.getText().trim().equals("STOP")) {
-					stopMap.put(messageModel.getFrom() + messageModel.getTo(), messageModel.getTo(), 1,
-							TimeUnit.MINUTES);
+					stopMap.put(messageModel.getFrom() + messageModel.getTo(), messageModel.getTo(),
+							stopCacheTimingInHourse, TimeUnit.MINUTES);
 				}
 
 				res = new ResponseModel("", "inbund sms ok");
@@ -73,13 +86,22 @@ public class SmsService {
 							+ " blocked by STOP request");
 				}
 
-				else if (dailyLimitMap.get(messageModel.getFrom())!=null && dailyLimitMap.get(messageModel.getFrom()) >= 3) {
+				else if (dailyLimitMap.get(messageModel.getFrom()) != null
+						&& dailyLimitMap.get(messageModel.getFrom()) >= maxLimitClearTimeCount) {
 					res = new ResponseModel("", "limit reached for from " + messageModel.getFrom());
 				} else {
 
-					dailyLimitMap.put(messageModel.getFrom(), (dailyLimitMap.get(messageModel.getFrom()) == null ? 1
-							: (dailyLimitMap.get(messageModel.getFrom()) + 1)), 1, TimeUnit.MINUTES);
-					res = new ResponseModel("outbound sms ok","");
+					if (dailyLimitMap.get(messageModel.getFrom()) == null) {
+						expirationTimeMap.put(messageModel.getFrom(), Util.expirationTimeInMillies(maxLimitClearTime));
+						long timeToExpire = expirationTimeMap.get(messageModel.getFrom()) - System.currentTimeMillis();
+						dailyLimitMap.put(messageModel.getFrom(), 1, timeToExpire, TimeUnit.MILLISECONDS);
+					} else {
+						long timeToExpire = expirationTimeMap.get(messageModel.getFrom()) - System.currentTimeMillis();
+						dailyLimitMap.put(messageModel.getFrom(), (dailyLimitMap.get(messageModel.getFrom()) + 1),
+								timeToExpire, TimeUnit.MILLISECONDS);
+					}
+
+					res = new ResponseModel("outbound sms ok", "");
 				}
 			}
 

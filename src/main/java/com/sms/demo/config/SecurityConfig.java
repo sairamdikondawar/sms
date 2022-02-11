@@ -8,12 +8,11 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.sms.demo.service.AccountService;
 
+@SuppressWarnings("deprecation")
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(
@@ -32,26 +31,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		authenticationManagerBuilder.userDetailsService(accountService).passwordEncoder(passwordEncoder());
 	}
 
-	 
-//	@Bean
-//	public PasswordEncoder passwordEncoder() {
-//		return new BCryptPasswordEncoder();
-//	}
-	
-	
 	@Bean
 	public NoOpPasswordEncoder passwordEncoder() {
-		return  (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();
+		return (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();
 	}
-	
-	
-	
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.csrf().disable().exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and().authorizeRequests().anyRequest().fullyAuthenticated()
-        .and()
-        .httpBasic();
+		http.csrf().disable().exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
+				.authorizeRequests().anyRequest().fullyAuthenticated().and().httpBasic();
 	}
 
 }

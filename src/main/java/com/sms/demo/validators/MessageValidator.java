@@ -1,5 +1,6 @@
 package com.sms.demo.validators;
 
+import org.hibernate.mapping.Array;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -15,31 +16,34 @@ public class MessageValidator {
 	public void validate(Object target, Errors errors) {
 
 		MessageModel messageModel = (MessageModel) target;
-
+		Object[] objArr = { "from" };
 		if (messageModel.getFrom() == null || messageModel.getFrom().isEmpty()) {
-			errors.rejectValue("from", "from.empty", null, "from is missing");
+
+			errors.rejectValue("from", "sms.param.missing", objArr, "from is missing");
 		} else {
 
 			if (messageModel.getFrom().length() < 6 || messageModel.getFrom().length() > 16) {
-				errors.rejectValue("from", "from.min.max.length", null, "from is invalid");
+
+				errors.rejectValue("from", "sms.param.invalid", objArr, "from is invalid");
 			}
 		}
-
+		Object[] objToArr = { "to" };
 		if (messageModel.getTo() == null || messageModel.getTo().isEmpty()) {
-			errors.rejectValue("to", "to.empty", null, "to is missing");
+			errors.rejectValue("to", "sms.param.missing", objToArr, "to is missing");
 		} else {
 
 			if (messageModel.getTo().length() < 6 || messageModel.getTo().length() > 16) {
-				errors.rejectValue("to", "to.min.max.length", null, "to is invalid");
+				errors.rejectValue("to", "sms.param.invalid", objToArr, "to is invalid");
 			}
 		}
 
+		Object[] objTextArr = { "text" };
 		if (messageModel.getText() == null || messageModel.getText().isEmpty()) {
-			errors.rejectValue("text", "text.empty", null, "text is missing");
+			errors.rejectValue("text", "sms.param.missing", objTextArr, "text is missing");
 		} else {
 
 			if (messageModel.getText().length() < 1) {
-				errors.rejectValue("text", "text.min.max.length", null, "text is invalid");
+				errors.rejectValue("text", "sms.param.invalid", objTextArr, "text is invalid");
 			}
 		}
 

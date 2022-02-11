@@ -1,14 +1,14 @@
 package com.sms.demo.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.Locale;
 
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -43,6 +43,13 @@ public class SmsController {
 	@Autowired
 	private IMap<String, String> stopMap;
 
+	@Autowired
+	private MessageSource messageSource;
+
+	Locale currentLocale = LocaleContextHolder.getLocale();
+
+	private Object[] argumentsToReplace = new String[5];
+
 	@GetMapping("/sms")
 	public String test() {
 		return "service running";
@@ -52,18 +59,26 @@ public class SmsController {
 	@ResponseStatus(HttpStatus.OK)
 	public ResponseEntity<?> inbound(@Valid @RequestBody MessageModel model, BindingResult bindingResult)
 			throws Exception {
-		log.info("Inside   Inbound SMS API");
-		ResponseModel resp = new ResponseModel("", "unknown failure");
-		try {
-			inboundValidator.validate(model, bindingResult);
-			if (bindingResult.hasErrors()) {
-				List<ResponseModel> errRes = new ArrayList<ResponseModel>();
-				for (FieldError fieldError : bindingResult.getFieldErrors()) {
+		log.debug("Inside   Inbound SMS API");
 
-//					ResponseModel respm = new ResponseModel("", fieldError.getDefaultMessage());
-//					errRes.add(respm);
-					resp= new ResponseModel("", fieldError.getDefaultMessage());
-					break;// as per requirement need to send only one error so just handling in this way. we can handle diffrent way to show multiple errors.
+		ResponseModel resp = null;
+		try {
+
+			String localizedErrorMessage = messageSource.getMessage("sms.unkown.failuer", null, currentLocale);
+			resp = new ResponseModel("", localizedErrorMessage);
+
+			inboundValidator.validate(model, bindingResult);
+
+			if (bindingResult.hasErrors()) {
+				for (FieldError fieldError : bindingResult.getFieldErrors()) {
+					argumentsToReplace = fieldError.getArguments();
+					localizedErrorMessage = messageSource.getMessage(fieldError.getCode(), argumentsToReplace,
+							currentLocale);
+
+					resp = new ResponseModel("", localizedErrorMessage);
+
+					break;// as per requirement need to send only one error so just handling in this way.
+							// we can handle diffrent way to show multiple errors.
 				}
 
 				return new ResponseEntity<ResponseModel>(resp, HttpStatus.BAD_REQUEST);
@@ -74,6 +89,9 @@ public class SmsController {
 		} catch (Exception e) {
 			return new ResponseEntity<ResponseModel>(resp, HttpStatus.BAD_REQUEST);
 		}
+
+		log.debug("Exist from Inbound SMS API");
+
 		return new ResponseEntity<ResponseModel>(resp, HttpStatus.OK);
 	}
 
@@ -82,27 +100,32 @@ public class SmsController {
 	public ResponseEntity<?> outbound(@Valid @RequestBody MessageModel model, BindingResult bindingResult)
 			throws Exception {
 		log.info("Inside   Outbound SMS API" + model.getText());
-		ResponseModel resp = new ResponseModel("", "unknown failure");
+		ResponseModel resp = null;
 		try {
+
+			String localizedErrorMessage = messageSource.getMessage("sms.unkown.failuer", null, currentLocale);
+			resp = new ResponseModel("", localizedErrorMessage);
+
 			outboundValidator.validate(model, bindingResult);
 
 			if (bindingResult.hasErrors()) {
-				List<ResponseModel> errRes = new ArrayList<ResponseModel>();
 				for (FieldError fieldError : bindingResult.getFieldErrors()) {
-					ResponseModel respm = new ResponseModel("", fieldError.getDefaultMessage());
-//					errRes.add(respm);
-					resp= new ResponseModel("", fieldError.getDefaultMessage());
-					break;// as per requirement need to send only one error so just handling in this way. we can handle diffrent way to show multiple errors.
-			
+					argumentsToReplace = fieldError.getArguments();
+					localizedErrorMessage = messageSource.getMessage(fieldError.getCode(), argumentsToReplace,
+							currentLocale);
+
+					resp = new ResponseModel("", localizedErrorMessage);
 				}
 				return new ResponseEntity<ResponseModel>(resp, HttpStatus.BAD_REQUEST);
-//				return new ResponseEntity<<ResponseModel>>(errRes, HttpStatus.BAD_REQUEST);
 			} else {
 				resp = smsService.procesOutboundMessage(model);
 			}
 		} catch (Exception e) {
 			return new ResponseEntity<ResponseModel>(resp, HttpStatus.BAD_REQUEST);
 		}
+
+		log.debug("Exist from Outbound SMS API");
+
 		return new ResponseEntity<ResponseModel>(resp, HttpStatus.OK);
 	}
 
