@@ -21,3 +21,7 @@ Once Server is started you can access below endopoints.
 
 Use Below postman collection to test from POST MAN:
 https://github.com/sairamdikondawar/sms/blob/master/src/test/java/com/sms/demo/sms%20demo.postman_collection.json
+
+Verify Swagger API doc using below URL:
+
+http://localhost:8080/swagger-ui/index.html
