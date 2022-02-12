@@ -1,5 +1,7 @@
 package com.sms.demo.service;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -54,8 +56,9 @@ public class SmsService {
 			if (!phoneNumber.isPresent()) {
 				res = new ResponseModel("", "to parameter not found");
 			} else {
-
-				if (messageModel.getText().trim().equals("STOP")) {
+				String text=messageModel.getText().toLowerCase().replace("\n", "").replace("\r", "");
+				List<String> words=Arrays.asList(text.split(" "));
+				if (words.contains("stop")) {
 					stopMap.put(messageModel.getFrom() + messageModel.getTo(), messageModel.getTo(),
 							stopCacheTimingInHourse, TimeUnit.HOURS);
 				}

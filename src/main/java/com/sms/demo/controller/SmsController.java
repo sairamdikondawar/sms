@@ -26,7 +26,10 @@ import com.sms.demo.service.SmsService;
 import com.sms.demo.validators.InboundValidator;
 import com.sms.demo.validators.OutboundValidator;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 @RestController
+@SecurityRequirement(name = "smsapi")
 public class SmsController {
 
 	private static final Logger log = LoggerFactory.getLogger(SmsController.class);
